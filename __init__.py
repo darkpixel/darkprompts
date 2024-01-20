@@ -1,4 +1,4 @@
-__version__ = "0.0.1"
+__version__ = "0.0.3"
 
 import logging
 import random
@@ -127,6 +127,11 @@ class DarkPrompt(object):
                 "prefix": ("STRING", {"default": None}),
                 "suffix": ("STRING", {"default": None}),
                 "text": ("STRING", {"default": None, "multiline": True}),
+                "combine_with": (
+                    "STRING",
+                    {"default": None, "multiline": True, "forceInput": True},
+                ),
+                "combine_with_delimiter": ("STRING", {"default": "\n"}),
             },
         }
 
@@ -145,6 +150,8 @@ class DarkPrompt(object):
         text=None,
         prefix=None,
         suffix=None,
+        combine_with=None,
+        combine_with_delimiter="\n",
     ):
         logger.info("DarkPrompt called with filename %s" % (filename))
 
@@ -182,6 +189,17 @@ class DarkPrompt(object):
         if suffix:
             ret = ret + suffix
 
+        if combine_with and not combine_with == "undefined":
+            print("Combine with: %s" % (combine_with))
+            if combine_with_delimiter:
+                if combine_with_delimiter == "\\n":
+                    combine_with_delimiter = "\n"
+                print("Combine with delimiter: %s" % (combine_with_delimiter))
+                ret = combine_with + combine_with_delimiter + ret
+            else:
+                ret = combine_with + ret
+
+        print(ret)
         return (ret,)
 
 
