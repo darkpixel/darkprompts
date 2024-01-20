@@ -1,4 +1,4 @@
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 import logging
 import random
@@ -83,7 +83,6 @@ class DarkCombine(object):
             if len(val.strip()) > 0:
                 text.append(val)
 
-        print(delimiter.join(text))
         return (delimiter.join(text),)
 
 
@@ -190,16 +189,13 @@ class DarkPrompt(object):
             ret = ret + suffix
 
         if combine_with and not combine_with == "undefined":
-            print("Combine with: %s" % (combine_with))
             if combine_with_delimiter:
                 if combine_with_delimiter == "\\n":
                     combine_with_delimiter = "\n"
-                print("Combine with delimiter: %s" % (combine_with_delimiter))
                 ret = combine_with + combine_with_delimiter + ret
             else:
                 ret = combine_with + ret
 
-        print(ret)
         return (ret,)
 
 
