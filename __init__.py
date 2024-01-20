@@ -154,7 +154,6 @@ class DarkPrompt(object):
             raise ValueError("DarkPrompt text and filename can not both be blank")
 
         if filename:
-            print("Trying to read %s" % (filename))
             try:
                 f = open(filename, "r")
                 file_lines = f.read().splitlines()
@@ -162,7 +161,7 @@ class DarkPrompt(object):
                     lines.append(line)
                 print("Successfully read %s" % (filename))
             except FileNotFoundError:
-                logger.error("File not found: %s" % (filename))
+                raise FileNotFoundError("DarkPrompt unable to load: %s" % (filename))
 
         if text:
             for text_line in text.splitlines():
