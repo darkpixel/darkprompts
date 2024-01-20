@@ -16,3 +16,11 @@ DarkCombiner accepts up to 7 text inputs and combines them with an optional deli
 Screenshot
 ==========
 ![DarkPrompt](assets/workflow.png "DarkPrompt")
+
+Installation Using ComfyUI Manager
+==================================
+If you are using ComfyUI Manager, copy the URL of this repo and paste it into the "Install via Git URL" box and restart ComfyUI.
+
+Installation into ComfyUI
+=========================
+Go into your custom_nodes directory and run a 'git clone https://github.com/darkpixel/darkprompts.git' and then restart ComfyUI.
