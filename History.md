@@ -1,4 +1,10 @@
 
+v0.0.2 / 2024-01-19
+==================
+
+  * Raise an error if a file is not found
+  * Forgot to mention the feature that made me write DarkPrompt
+
 v0.0.1 / 2024-01-19
 ==================
 
