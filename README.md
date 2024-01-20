@@ -1,8 +1,18 @@
 DarkPrompts
 -----------
 
-A better input for the WAS Text Concatenate box
+A slightly better tool for generating random prompts.
 
-DarkReader allows you to load lines from a file and/or lines from a text box, and pick a random line based on the seed.
+DarkPrompt
+==========
+DarkPrompt reads lines from a file and/or a text input, combines them together, optionally strips out comments and blank lines, and then selects a random line for use in generating your prompt based on a seed input.  It also has a "prefix" and "suffix" field so you can easily include additional information with each prompt or wrap it inside a weight.  For example a prefix of '(' and a suffix of ':1.2)' could return a string: ```(walking a dog:1.2)``` from an file named ```activities.txt``` that contains a line ```walking a dog```.
 
-DarkReader also allows stripping out comments and blank lines during processing
+Unlike several other ComfyUI projects, the box is somewhat more compact and gives you an easy way to combine file and text sources for prompt generation.
+
+DarkCombiner
+============
+DarkCombiner accepts up to 7 text inputs and combines them with an optional delimiter (\n by default) with a string output.  This allows you to easily combine multiple DarkPrompt nodes to generate complex prompts.
+
+Screenshot
+==========
+![DarkPrompt](assets/workflow.png "DarkPrompt")
