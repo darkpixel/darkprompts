@@ -19,8 +19,9 @@ Screenshot
 
 Installation Using ComfyUI Manager
 ==================================
-If you are using ComfyUI Manager, copy the URL of this repo and paste it into the "Install via Git URL" box and restart ComfyUI.
+DarkPrompts should now show up in the list of modules in ComfyUI Manager.
+If not, you can copy the URL of this repo and paste it into the "Install via Git URL" box and restart ComfyUI.
 
 Installation into ComfyUI
 =========================
-Go into your custom_nodes directory and run a 'git clone https://github.com/darkpixel/darkprompts.git' and then restart ComfyUI.
+Go into your custom_nodes directory and run a ```git clone https://github.com/darkpixel/darkprompts.git``` and then restart ComfyUI.
