@@ -180,7 +180,11 @@ class DarkPrompt(object):
             lines = strip_blanks_from_lines(lines)
 
         random.seed(seed)
-        ret = str(random.choice(lines))
+        try:
+            ret = str(random.choice(lines))
+        except IndexError:
+            print("No choices available for file: %s" % (filename))
+            ret = ""
 
         if prefix:
             ret = prefix + ret
