@@ -82,7 +82,6 @@ class DarkCombine(object):
             val = kwargs[key]
             if len(val.strip()) > 0:
                 text.append(val)
-
         return (delimiter.join(text),)
 
 
@@ -184,7 +183,7 @@ class DarkPrompt(object):
             ret = str(random.choice(lines))
         except IndexError:
             print("No choices available for file: %s" % (filename))
-            ret = ""
+            return ("",)
 
         if prefix:
             ret = prefix + ret
