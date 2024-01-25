@@ -188,7 +188,7 @@ class DarkPrompt(object):
             else:
                 ret = ""
 
-        print("chose line: %s from %s" % (ret, filename if filename else "text"))
+        print("chose line: %s from %s lines" % (ret, len(lines)))
 
         if prefix:
             ret = prefix + ret
