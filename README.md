@@ -13,6 +13,11 @@ DarkCombiner
 ============
 DarkCombiner accepts up to 7 text inputs and combines them with an optional delimiter (\n by default) with a string output.  This allows you to easily combine multiple DarkPrompt nodes to generate complex prompts.
 
+DarkLoraTagLoader
+=================
+DarkLoraTagLoader is a modified version of LoraTagLoader from https://github.com/badjeff/comfyui_lora_tag_loader that also outputs a LORA_STACK of detected LoRAs for use in things like the Efficient Loader for doing XY Plots.
+LoraTagLoader is licensed under the freedom-hating GPL v3 license which is why the code for DarkLoraTagLoader is under the gplv3 folder.
+
 Screenshot
 ==========
 ![DarkPrompt](assets/workflow.png "DarkPrompt")

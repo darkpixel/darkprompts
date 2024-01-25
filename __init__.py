@@ -3,6 +3,7 @@ __version__ = "0.0.5"
 import logging
 import random
 import re
+from .gpl3 import DarkLoraTagLoader
 
 logger = logging.getLogger(__name__)
 
@@ -209,11 +210,13 @@ class DarkPrompt(object):
 NODE_CLASS_MAPPINGS = {
     "DarkCombine": DarkCombine,
     "DarkPrompt": DarkPrompt,
+    "DarkLoRALoader": DarkLoraTagLoader,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkCombine": "Dark Combiner",
     "DarkPrompt": "Dark Prompt",
+    "DarkLoRALoader": "Dark LoRA Loader",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
