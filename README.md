@@ -13,14 +13,20 @@ DarkCombiner
 ============
 DarkCombiner accepts up to 7 text inputs and combines them with an optional delimiter (\n by default) with a string output.  This allows you to easily combine multiple DarkPrompt nodes to generate complex prompts.
 
+DarkLoraTagLoader
+=================
+DarkLoraTagLoader is a modified version of LoraTagLoader from https://github.com/badjeff/comfyui_lora_tag_loader that also outputs a LORA_STACK of detected LoRAs for use in things like the Efficient Loader for doing XY Plots.
+LoraTagLoader is licensed under the freedom-hating GPL v3 license which is why the code for DarkLoraTagLoader is under the gplv3 folder.
+
 Screenshot
 ==========
 ![DarkPrompt](assets/workflow.png "DarkPrompt")
 
 Installation Using ComfyUI Manager
 ==================================
-If you are using ComfyUI Manager, copy the URL of this repo and paste it into the "Install via Git URL" box and restart ComfyUI.
+DarkPrompts should now show up in the list of modules in ComfyUI Manager.
+If not, you can copy the URL of this repo and paste it into the "Install via Git URL" box and restart ComfyUI.
 
 Installation into ComfyUI
 =========================
-Go into your custom_nodes directory and run a 'git clone https://github.com/darkpixel/darkprompts.git' and then restart ComfyUI.
+Go into your custom_nodes directory and run a ```git clone https://github.com/darkpixel/darkprompts.git``` and then restart ComfyUI.

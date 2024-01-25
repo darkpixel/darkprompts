@@ -1,8 +1,9 @@
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 import logging
 import random
 import re
+from .gpl3 import DarkLoraTagLoader
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,6 @@ class DarkCombine(object):
             val = kwargs[key]
             if len(val.strip()) > 0:
                 text.append(val)
-
         return (delimiter.join(text),)
 
 
@@ -165,7 +165,6 @@ class DarkPrompt(object):
                 file_lines = f.read().splitlines()
                 for line in file_lines:
                     lines.append(line)
-                print("Successfully read %s" % (filename))
             except FileNotFoundError:
                 raise FileNotFoundError("DarkPrompt unable to load: %s" % (filename))
 
@@ -180,7 +179,16 @@ class DarkPrompt(object):
             lines = strip_blanks_from_lines(lines)
 
         random.seed(seed)
-        ret = str(random.choice(lines))
+        try:
+            ret = str(random.choice(lines))
+        except IndexError:
+            print("No choices available for file: %s" % (filename))
+            if not combine_with and not combine_with == "undefined":
+                return ("",)
+            else:
+                ret = ""
+
+        print("chose line: %s from %s lines" % (ret, len(lines)))
 
         if prefix:
             ret = prefix + ret
@@ -202,11 +210,13 @@ class DarkPrompt(object):
 NODE_CLASS_MAPPINGS = {
     "DarkCombine": DarkCombine,
     "DarkPrompt": DarkPrompt,
+    "DarkLoRALoader": DarkLoraTagLoader,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkCombine": "Dark Combiner",
     "DarkPrompt": "Dark Prompt",
+    "DarkLoRALoader": "Dark LoRA Loader",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
