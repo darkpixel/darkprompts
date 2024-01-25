@@ -185,6 +185,8 @@ class DarkPrompt(object):
             print("No choices available for file: %s" % (filename))
             return ("",)
 
+        print("chose line: %s from %s" % (ret, filename if filename else "text"))
+
         if prefix:
             ret = prefix + ret
 
