@@ -164,7 +164,6 @@ class DarkPrompt(object):
                 file_lines = f.read().splitlines()
                 for line in file_lines:
                     lines.append(line)
-                print("Successfully read %s" % (filename))
             except FileNotFoundError:
                 raise FileNotFoundError("DarkPrompt unable to load: %s" % (filename))
 
@@ -183,7 +182,10 @@ class DarkPrompt(object):
             ret = str(random.choice(lines))
         except IndexError:
             print("No choices available for file: %s" % (filename))
-            return ("",)
+            if not combine_with and not combine_with == "undefined":
+                return ("",)
+            else:
+                ret = ""
 
         print("chose line: %s from %s" % (ret, filename if filename else "text"))
 
