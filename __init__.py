@@ -1,4 +1,4 @@
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
 import logging
 import random
@@ -26,6 +26,44 @@ def strip_comments_from_lines(lines):
         else:
             cleaned.append(line)
     return cleaned
+
+
+class DarkFaceIndexShuffle(object):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "optional": {},
+            "required": {
+                "faces_index_csv": (
+                    "STRING",
+                    {},
+                ),
+                "seed": (
+                    "INT",
+                    {
+                        "default": 0,
+                        "min": 0,
+                        "max": 0xFFFFFFFFFFFFFFFF,
+                        "forceInput": True,
+                    },
+                ),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "face_index_shuffle"
+
+    CATEGORY = "DarkPrompt"
+
+    def face_index_shuffle(self, faces_index_csv, seed=1, **kwargs):
+        face_index = faces_index_csv.split(",")
+
+        random.seed(seed)
+        random.shuffle(face_index)
+        return (",".join(face_index),)
 
 
 class DarkCombine(object):
@@ -211,12 +249,14 @@ NODE_CLASS_MAPPINGS = {
     "DarkCombine": DarkCombine,
     "DarkPrompt": DarkPrompt,
     "DarkLoRALoader": DarkLoraTagLoader,
+    "DarkFaceIndexShuffle": DarkFaceIndexShuffle,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkCombine": "Dark Combiner",
     "DarkPrompt": "Dark Prompt",
     "DarkLoRALoader": "Dark LoRA Loader",
+    "DarkFaceIndexShuffle": "Dark Face Index Shuffle",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
