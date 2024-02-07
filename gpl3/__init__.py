@@ -73,7 +73,7 @@ class DarkLoraTagLoader:
                     f"Unable to load LoRA from tag:: { (type, name, wModel, wClip) } >> { lora_name }"
                 )
                 continue
-            print(f"Found LoRA tag: { (type, name, wModel, wClip) } >> { lora_name }")
+            # print(f"Found LoRA tag: { (type, name, wModel, wClip) } >> { lora_name }")
 
             lora_path = folder_paths.get_full_path("loras", lora_name)
             lora = None
