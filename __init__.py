@@ -245,7 +245,7 @@ class DarkPrompt(object):
             ret = ""
 
         if combine_with and not combine_with == "undefined":
-            if combine_with_delimiter:
+            if combine_with_delimiter and len(ret) > 1:
                 if combine_with_delimiter == "\\n":
                     combine_with_delimiter = "\n"
                 ret = combine_with + combine_with_delimiter + ret
