@@ -149,6 +149,7 @@ class DarkPrompt(object):
             "required": {
                 "strip_blank_lines": ("BOOLEAN", {"default": 1}),
                 "strip_comments": ("BOOLEAN", {"default": 1}),
+                "randomly_disable": ("BOOLEAN", {"default": 0}),
                 "seed": (
                     "INT",
                     {
@@ -180,9 +181,10 @@ class DarkPrompt(object):
 
     def dark_prompt(
         self,
-        strip_blank_lines,
-        strip_comments,
         seed,
+        strip_blank_lines=True,
+        strip_comments=True,
+        randomly_disable=False,
         filename=None,
         text=None,
         prefix=None,
@@ -226,13 +228,21 @@ class DarkPrompt(object):
             else:
                 ret = ""
 
-        print("chose line: %s from %s lines" % (ret, len(lines)))
+        if randomly_disable:
+            random.seed()
 
-        if prefix:
-            ret = prefix + ret
+        if not randomly_disable or (
+            randomly_disable and not random.choice([True, False])
+        ):
+            print("chose line: %s from %s lines" % (ret, len(lines)))
+            if prefix:
+                ret = prefix + ret
 
-        if suffix:
-            ret = ret + suffix
+            if suffix:
+                ret = ret + suffix
+        else:
+            print("Randomly disabled line: %s" % (ret))
+            ret = ""
 
         if combine_with and not combine_with == "undefined":
             if combine_with_delimiter:
