@@ -28,6 +28,56 @@ def strip_comments_from_lines(lines):
     return cleaned
 
 
+class DarkFaceIndexGenerator(object):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "optional": {
+                "pad_to": (
+                    "INT",
+                    {"forceInput": True},
+                ),
+            },
+            "required": {
+                "number_of_faces": (
+                    "INT",
+                    {"forceInput": True},
+                ),
+                "randomize": (
+                    "BOOLEAN",
+                    {"default": 1},
+                ),
+                "seed": (
+                    "INT",
+                    {
+                        "default": 0,
+                        "min": 0,
+                        "max": 0xFFFFFFFFFFFFFFFF,
+                        "forceInput": True,
+                    },
+                ),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "face_index_generator"
+
+    CATEGORY = "DarkPrompt"
+
+    def face_index_generator(self, number_of_faces, randomize=True, seed=1, **kwargs):
+        faces = []
+        for i in range(0, number_of_faces):
+            faces.append(i)
+
+        if randomize:
+            random.seed(seed)
+            random.shuffle(faces)
+        return (",".join(faces),)
+
+
 class DarkFaceIndexShuffle(object):
     def __init__(self):
         pass
@@ -260,6 +310,7 @@ NODE_CLASS_MAPPINGS = {
     "DarkPrompt": DarkPrompt,
     "DarkLoRALoader": DarkLoraTagLoader,
     "DarkFaceIndexShuffle": DarkFaceIndexShuffle,
+    "DarkFaceIndexGenerator": DarkFaceIndexGenerator,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -267,6 +318,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkPrompt": "Dark Prompt",
     "DarkLoRALoader": "Dark LoRA Loader",
     "DarkFaceIndexShuffle": "Dark Face Index Shuffle",
+    "DarkFaceIndexGenerator": "Dark Face Index Generator",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
