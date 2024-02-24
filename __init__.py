@@ -50,6 +50,10 @@ class DarkFaceIndexGenerator(object):
                     "BOOLEAN",
                     {"default": 1},
                 ),
+                "randomize_after_padding": (
+                    "BOOLEAN",
+                    {"default": 1},
+                ),
                 "seed": (
                     "INT",
                     {
@@ -67,14 +71,35 @@ class DarkFaceIndexGenerator(object):
 
     CATEGORY = "DarkPrompt"
 
-    def face_index_generator(self, number_of_faces, randomize=True, seed=1, **kwargs):
+    def face_index_generator(
+        self,
+        number_of_faces,
+        randomize=True,
+        randomize_after_padding=True,
+        seed=1,
+        pad_to=None,
+        **kwargs
+    ):
         faces = []
         for i in range(0, number_of_faces):
-            faces.append(i)
+            faces.append(str(i))
 
-        if randomize:
+        if randomize and not randomize_after_padding:
             random.seed(seed)
             random.shuffle(faces)
+
+        # ReActor is pretty dumb with faces, so we need to ensure every source
+        # face also has an input face even if they don't exist, otherwise it
+        # won't swap any faces
+
+        if pad_to and number_of_faces < pad_to:
+            for i in range(number_of_faces, pad_to):
+                faces.append(str(i))
+
+        if randomize and randomize_after_padding:
+            random.seed(seed)
+            random.shuffle(faces)
+
         return (",".join(faces),)
 
 
