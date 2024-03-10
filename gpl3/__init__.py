@@ -44,7 +44,7 @@ class DarkLoraTagLoader:
         # print(f"\nLoraTagLoader input text: { text }")
 
         founds = re.findall(self.tag_pattern, text)
-        # print(f"\nfoound lora tags: { founds }")
+        # print(f"\nfound lora tags: { founds }")
 
         if len(founds) < 1:
             return (model, clip, text)
@@ -70,10 +70,10 @@ class DarkLoraTagLoader:
                     break
             if lora_name == None:
                 print(
-                    f"bypassed lora tag: { (type, name, wModel, wClip) } >> { lora_name }"
+                    f"Unable to load LoRA from tag:: { (type, name, wModel, wClip) } >> { lora_name }"
                 )
                 continue
-            # print(f"detected lora tag: { (type, name, wModel, wClip) } >> { lora_name }")
+            # print(f"Found LoRA tag: { (type, name, wModel, wClip) } >> { lora_name }")
 
             lora_path = folder_paths.get_full_path("loras", lora_name)
             lora = None
@@ -89,12 +89,18 @@ class DarkLoraTagLoader:
                 lora = comfy.utils.load_torch_file(lora_path, safe_load=True)
                 self.loaded_lora = (lora_path, lora)
 
-            strength_model = float(wModel)
-            strength_clip = float(wClip)
-            model_lora, clip_lora = comfy.sd.load_lora_for_models(
-                model_lora, clip_lora, lora, strength_model, strength_clip
-            )
-            lora_stack.extend([(lora_name, strength_model, strength_clip)])
+            try:
+                strength_model = float(wModel)
+                strength_clip = float(wClip)
+                model_lora, clip_lora = comfy.sd.load_lora_for_models(
+                    model_lora, clip_lora, lora, strength_model, strength_clip
+                )
+                lora_stack.extend([(lora_name, strength_model, strength_clip)])
+            except ValueError:
+                print(
+                    "Unable to load LoRA %s due to invalid floats: %s and %s"
+                    % (lora_name, wModel, wClip)
+                )
 
         plain_prompt = re.sub(self.tag_pattern, "", text)
         return (
