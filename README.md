@@ -5,18 +5,21 @@ A slightly better tool for generating random prompts.
 
 DarkPrompt
 ==========
-DarkPrompt reads lines from a file and/or a text input, combines them together, optionally strips out comments and blank lines, and then selects a random line for use in generating your prompt based on a seed input.  It also has a "prefix" and "suffix" field so you can easily include additional information with each prompt or wrap it inside a weight.  For example a prefix of '(' and a suffix of ':1.2)' could return a string: ```(walking a dog:1.2)``` from an file named ```activities.txt``` that contains a line ```walking a dog```.
+DarkPrompt reads lines from a file and/or a text input, combines them together, optionally strips out comments and blank lines, and then selects a random line for use in generating your prompt based on a seed input.
+It also has a ```prefix``` and ```suffix``` field so you can easily include additional information with each prompt or wrap it inside a weight.  For example a prefix of ```(``` and a suffix of ```:1.2)``` could return a string:
+```(walking a dog:1.2)``` from an file named ```activities.txt``` that contains a line ```walking a dog```.
 
 Unlike several other ComfyUI projects, the box is somewhat more compact, gives you an easy way to combine file and text sources for prompt generation, and most importantly it re-reads the files after every prompt generation so you don't have to restart ComfyUI after editing wildcard files.
 
 DarkCombiner
 ============
-DarkCombiner accepts up to 7 text inputs and combines them with an optional delimiter (\n by default) with a string output.  This allows you to easily combine multiple DarkPrompt nodes to generate complex prompts.
+DarkCombiner accepts up to 7 text inputs and combines them with an optional delimiter (```\n``` by default) with a string output.  This allows you to easily combine multiple DarkPrompt nodes to generate complex prompts.
+It isn't really needed anymore since DarkPrompt supports combining from previous DarkPrompt nodes.
 
 DarkLoraTagLoader
 =================
-DarkLoraTagLoader is a modified version of LoraTagLoader from https://github.com/badjeff/comfyui_lora_tag_loader that also outputs a LORA_STACK of detected LoRAs for use in things like the Efficient Loader for doing XY Plots.
-LoraTagLoader is licensed under the freedom-hating GPL v3 license which is why the code for DarkLoraTagLoader is under the gplv3 folder.
+DarkLoraTagLoader is a modified version of [LoraTagLoader(https://github.com/badjeff/comfyui_lora_tag_loader)] that also outputs a LORA_STACK of detected LoRAs for use in things like the Efficient Loader for doing XY Plots.
+LoraTagLoader is licensed under the freedom-hating GPL v3 license which is why the code for DarkLoraTagLoader is under the gplv3 folder and is licensed separately from other files in this project.
 
 DarkFaceIndexShuffle
 ====================
@@ -30,13 +33,13 @@ DarkFolder is used to dynamically generate folder paths for saving images.
 Having a huge output directory with tons of files makes sorting images a huge pain.  Sure, some people use a date-prefix to create folders, but in any given day you could have thousands or tens of thousands of images.  That's still painful to sort through.
 DarkFolder works with nodes like 'Save Image w/ Metadata' (From [comfy-image-saver](https://github.com/giriss/comfy-image-saver)) that have a path option for saving images.
 
-DarkFolder takes a prefix ("batch-" by default) and a "folder size" and dynamically generates a new path that doesn't have more than $folder_size images in it.
-Additionally there is a selection method for choosing how to handle existing folders.
+DarkFolder takes a prefix (```batch-``` by default) and a ```folder_size``` and dynamically generates a new path based on the number of images in existing folders.
+Additionally there is a ```selection_method``` for choosing how to handle existing folders.
 
-Let's say every time you run a batch on ComfyUI you end up with 8 new images, and you have DarkFolder set to a size of 16 with the selection method set to "Highest Not Full".
-On the first run, it would create a folder called 'batch-0' and toss the 8 newly generated images into it.
-On the second run, since 'batch-0' only has 8 images and the highest "not-full" folder is "batch-0" it will drop the next 8 images in there.
-On the third run, batch-0 has 16 images.  Since the "folder size" is set to 16, DarkFolder will tell your image saver to use a new folder called 'batch-1' until it has 16 or more images in it.
+Let's say every time you run a batch on ComfyUI you end up with 8 new images, and you have DarkFolder set to a size of 16 with the selection method set to ```Highest Not Full```.
+On the first run, it would create a folder called ```batch-0``` and toss the 8 newly generated images into it.
+On the second run, since ```batch-0``` only has 8 images and the highest "not-full" folder is ```batch-0``` it will drop the next 8 images in there.
+On the third run, ```batch-0``` has 16 images.  Since ```folder_size``` is set to 16, DarkFolder will tell your image saver to use a new folder called ```batch-1``` until it has 16 or more images in it.
 
 The selection methods:
 
