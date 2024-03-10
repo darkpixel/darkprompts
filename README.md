@@ -7,7 +7,8 @@ DarkPrompt
 ==========
 DarkPrompt reads lines from a file and/or a text input, combines them together, optionally strips out comments and blank lines, and then selects a random line for use in generating your prompt based on a seed input.
 It also has a ```prefix``` and ```suffix``` field so you can easily include additional information with each prompt or wrap it inside a weight.  For example a prefix of ```(``` and a suffix of ```:1.2)``` could return a string:
-```(walking a dog:1.2)``` from an file named ```activities.txt``` that contains a line ```walking a dog```.
+```(walking a dog:1.2)``` from an file named ```activities.txt``` that contains a line ```walking a dog```.  There are additional options for randomly disabling a DarkPrompt object from returning anything.  This is useful when you might
+have a section of prompting that you only occasionally want to include.  For example, you might have different types of shoes you want to add to your character, but occasionally you want the prompt to not mention shoes at all.
 
 Unlike several other ComfyUI projects, the box is somewhat more compact, gives you an easy way to combine file and text sources for prompt generation, and most importantly it re-reads the files after every prompt generation so you don't have to restart ComfyUI after editing wildcard files.
 
