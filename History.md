@@ -1,4 +1,14 @@
 
+v0.0.8 / 2024-03-10
+==================
+
+  * New "Randomly Disable" DarkPrompt feature
+  * DarkFolder allows dynamically generating folder prefixes based on certain conditions
+  * Add DarkFaceIndexGenerator which may be useful when using ReActor
+  * Split out into multiple libraries, add new DarkFolders module
+  * Fix a crash due to invalid float
+  * Fix randomly disabled prompts including combine_with_delimiter
+
 v0.0.7 / 2024-02-03
 ===================
 
