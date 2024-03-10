@@ -44,8 +44,9 @@ def get_existing_folder_numbers_matching_prefix(prefix):
     prefix_matches = glob.glob(get_full_path(prefix) + "*")
     used = []
     for m in prefix_matches:
-        used.append(int(m.replace(get_full_path(prefix), "")))
-        used.sort()
+        if os.path.isdir(m):
+            used.append(int(m.replace(get_full_path(prefix), "")))
+            used.sort()
     return used
 
 
