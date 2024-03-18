@@ -20,7 +20,7 @@ NODE_CLASS_MAPPINGS = {
     "DarkFaceIndexShuffle": faces.DarkFaceIndexShuffle,
     "DarkFaceIndexGenerator": faces.DarkFaceIndexGenerator,
     "DarkCheckpointRandomizer": checkpoints.DarkCheckpointRandomizer,
-    "DarkCheckopintSwitcher": checkpoints.DarkCheckpointSwitcher,
+    "DarkCheckpointSwitcher": checkpoints.DarkCheckpointSwitcher,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
