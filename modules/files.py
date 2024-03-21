@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 def get_full_path(prefix):
     """Normalize the prefix into a full path"""
-    print("Checking prefix: %s" % (prefix))
     if not os.path.isabs(prefix):
         path = os.path.join(get_output_directory(), prefix)
     else:
@@ -35,7 +34,7 @@ def get_count_from_path(path):
     except FileNotFoundError:
         # Folder does not exist yet, give it a zero count
         count = 0
-    print("Folder %s has a count of %s" % (path, count))
+    logger.info("Folder %s has a count of %s" % (path, count))
     return count
 
 
@@ -114,7 +113,7 @@ class DarkFolders(object):
                     prefix_to_use = folder_prefix + str(i)
                     break
         elif selection_method == "Highest Not Full":
-            print("Using selection method: %s" % (selection_method))
+            logger.debug("Using selection method: %s" % (selection_method))
             highest_used_number = 0
             # Loop through all existing folders
             try:
@@ -139,7 +138,7 @@ class DarkFolders(object):
                 # The list of folders is empty
                 pass
 
-            print(
+            logger.debug(
                 "The highest folder number with items in it is: %s"
                 % (highest_used_number)
             )
@@ -148,7 +147,7 @@ class DarkFolders(object):
                 fldr = "%s%s" % (folder_prefix, i)
                 size = get_count_from_path(fldr)
                 if size < folder_size:
-                    print("Using folder prefix: %s" % (fldr))
+                    logger.debug("Using folder prefix: %s" % (fldr))
                     prefix_to_use = fldr
                     break
         elif selection_method == "New Every Generation":
@@ -159,6 +158,6 @@ class DarkFolders(object):
         else:
             raise Exception("Unknown selection method: %s" % (selection_method))
 
-        print("Using prefix: %s" % (prefix_to_use))
+        logger.info("Using prefix: %s" % (prefix_to_use))
 
         return (prefix_to_use,)
