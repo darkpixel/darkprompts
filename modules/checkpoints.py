@@ -94,6 +94,29 @@ class DarkCheckpointRandomizer(object):
     CATEGORY = "DarkPrompt"
 
     def get_checkpoint(self, seed, use_for_iterations, checkpoint_names):
+        # In order to avoid random crashes, we need to validate that every file
+        # exists.  This prevents someone from adding 'doesnotexist.safetensors'
+        # in to the random list queueing up a bunch of jobs and coming back the
+        # next morning to find that at some point we tried to use
+        # doesnotexist.safetensors and everything crashed.
+        checkpoints = []
+        for cpn in checkpoint_names.splitlines():
+            if cpn.strip():
+                if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
+                    checkpoints.append(cpn.strip())
+                else:
+                    logger.warn(
+                        "%s is in your DarkCheckpointRandomizer but it does not exist in your checkpoints directory"
+                        % (cpn)
+                    )
+            else:
+                logger.debug("Dropping blank line from DarkCheckpointRandomizer")
+
+        if not checkpoints:
+            raise Exception(
+                "You have no checkpoints that exist listed in your DarkCheckpointRandomizer"
+            )
+
         data = {}
         try:
             with open(
@@ -114,14 +137,14 @@ class DarkCheckpointRandomizer(object):
         if (
             data["iteration"] >= use_for_iterations
             or not "checkpoint" in data
-            or not data["checkpoint"] in checkpoint_names.splitlines()
+            or not data["checkpoint"] in checkpoints
         ):
             data.update({"iteration": 0})
             random.seed(seed)
             # BUG: Do better here.  Read all the lines in individually, strip
             # them, remove empties, maybe even ditch comments like DarkPrompt
             # does
-            data.update({"checkpoint": random.choice(checkpoint_names.splitlines())})
+            data.update({"checkpoint": random.choice(checkpoints)})
 
         data.update({"iteration": data["iteration"] + 1})
 
