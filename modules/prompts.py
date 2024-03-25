@@ -88,7 +88,6 @@ class DarkCombine(object):
 class DarkPrompt(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        logger.info("darkloader init")
 
     @classmethod
     def INPUT_TYPES(s):
@@ -153,7 +152,7 @@ class DarkPrompt(object):
         combine_with=None,
         combine_with_delimiter="\n",
     ):
-        logger.info("DarkPrompt called with filename %s" % (filename))
+        logger.debug("DarkPrompt called with filename %s" % (filename))
 
         lines = []
 
@@ -199,7 +198,9 @@ class DarkPrompt(object):
             ret = str(random.choice(lines)).strip()
         except IndexError:
             # An IndexError gets thrown if there are no choices
-            print("No choices available for file: %s" % (filename))
+            logger.info(
+                "No choices available for file: %s, skipping it..." % (filename)
+            )
             # This means we need to abort, but there may be multiple
             # DarkPrompt objects chained together, so we can't just return an
             # empty string in all cases
@@ -222,7 +223,7 @@ class DarkPrompt(object):
         if not randomly_disable or (randomly_disable and random.choice([True, False])):
             # If we aren't randomly disabled, take the randomly chosen line and
             # add the prefix and/or suffix if they were provided
-            print("chose line: %s from %s lines" % (ret, len(lines)))
+            logger.debug("chose line: %s from %s lines" % (ret, len(lines)))
             if prefix:
                 ret = prefix + ret
 
@@ -230,7 +231,7 @@ class DarkPrompt(object):
                 ret = ret + suffix
         else:
             # If we are randomly disabled, let people know what they're missing
-            print("Randomly disabled line: %s" % (ret))
+            logger.debug("Randomly disabled line: %s" % (ret))
             ret = ""
 
         # Check if we have combine_with data from previous DarkPrompt instances
