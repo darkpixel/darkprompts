@@ -196,6 +196,10 @@ class DarkFolders(object):
                 pass
 
             if not "input_data" in data:
+                # BUG: If this if the first run, it will start adding stuff to
+                # the highest numbered existing folder.  Sorta lame.  Probably
+                # need to also pay attention to the maximum number of files in
+                # existing folders.
                 data.update({"input_data": change_on_input})
 
             if "input_data" in data and not str(change_on_input) == data["input_data"]:
