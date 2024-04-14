@@ -1,7 +1,10 @@
 __version__ = "0.0.7"
 
 from folder_paths import get_output_directory
+from pathlib import Path
+import folder_paths
 import glob
+import json
 import logging
 import os
 import os.path
@@ -44,8 +47,14 @@ def get_existing_folder_numbers_matching_prefix(prefix):
     used = []
     for m in prefix_matches:
         if os.path.isdir(m):
-            used.append(int(m.replace(get_full_path(prefix), "")))
-            used.sort()
+            try:
+                used.append(int(m.replace(get_full_path(prefix), "")))
+                used.sort()
+            except ValueError:
+                logger.info(
+                    "DarkFolders found a folder that matches the prefix, but there is no suffix or the suffix is not an integer: %s"
+                    % (get_full_path(prefix))
+                )
     return used
 
 
@@ -88,7 +97,20 @@ class DarkFolders(object):
                     },
                 ),
                 "selection_method": (
-                    ["Fill Gaps", "Highest Not Full", "New Every Generation"],
+                    [
+                        "Fill Gaps",
+                        "Highest Not Full",
+                        "New Every Generation",
+                        "Change On Input Change",
+                    ],
+                ),
+            },
+            "optional": {
+                "change_on_input": (
+                    "*",
+                    {
+                        "forceInput": True,
+                    },
                 ),
             },
         }
@@ -98,7 +120,9 @@ class DarkFolders(object):
 
     CATEGORY = "DarkPrompt"
 
-    def get_prefix(self, seed, folder_prefix, folder_size, selection_method):
+    def get_prefix(
+        self, seed, folder_prefix, folder_size, selection_method, change_on_input=None
+    ):
         prefix_to_use = folder_prefix
 
         existing_folder_numbers = get_existing_folder_numbers_matching_prefix(
@@ -155,6 +179,47 @@ class DarkFolders(object):
                 existing_folder_numbers.pop() + 1 if existing_folder_numbers else 0
             )
             pass
+        elif selection_method == "Change On Input Change":
+            data = {}
+            try:
+                with open(
+                    os.path.join(
+                        folder_paths.temp_directory,
+                        "darkpromptdarkfolder.json",
+                    ),
+                    "r",
+                ) as data_file:
+                    data = json.loads(data_file.read())
+            except FileNotFoundError:
+                # Probably the first run
+                logger.info("darkpromptfolder.json does not exist, probably first run")
+                pass
+
+            if not "input_data" in data:
+                data.update({"input_data": change_on_input})
+
+            if "input_data" in data and not str(change_on_input) == data["input_data"]:
+                prefix_to_use = folder_prefix + str(
+                    existing_folder_numbers.pop() + 1 if existing_folder_numbers else 0
+                )
+                data.update({"input_data": str(change_on_input)})
+            else:
+                prefix_to_use = folder_prefix + str(
+                    existing_folder_numbers.pop() if existing_folder_numbers else 0
+                )
+
+            # There appears to be a bug in ComfyUI when you pass the arg
+            # --temp-directory /some/folder
+            # folder_paths.temp_directory will actually contain /some/folder/temp
+            # so just make sure it exists before trying to write to it
+            Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
+            data_file = open(
+                os.path.join(folder_paths.temp_directory, "darkpromptdarkfolder.json"),
+                "w",
+            )
+            data_file.write(json.dumps(data))
+            print(data)
+
         else:
             raise Exception("Unknown selection method: %s" % (selection_method))
 
