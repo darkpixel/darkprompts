@@ -1,6 +1,7 @@
 __version__ = "0.0.7"
 
 from pathlib import Path
+from .utils.darkdata import DarkData
 import folder_paths
 import glob
 import logging
@@ -100,6 +101,7 @@ class DarkCheckpointRandomizer(object):
         # next morning to find that at some point we tried to use
         # doesnotexist.safetensors and everything crashed.
         checkpoints = []
+        checkpoint = None
         for cpn in checkpoint_names.splitlines():
             if cpn.strip():
                 if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
@@ -117,49 +119,16 @@ class DarkCheckpointRandomizer(object):
                 "You have no checkpoints that exist listed in your DarkCheckpointRandomizer"
             )
 
-        data = {}
-        try:
-            with open(
-                os.path.join(
-                    folder_paths.temp_directory,
-                    "darkpromptcheckpointrandomizer.json",
-                ),
-                "r",
-            ) as data_file:
-                data = json.loads(data_file.read())
-        except FileNotFoundError:
-            # Probably the first run
-            pass
-
-        if not "iteration" in data:
-            data.update({"iteration": 0})
-
-        if (
-            data["iteration"] >= use_for_iterations
-            or not "checkpoint" in data
-            or not data["checkpoint"] in checkpoints
-        ):
-            data.update({"iteration": 0})
+        with DarkData(filename="darkcheckpointrandomizer.json") as DFB:
             random.seed(seed)
-            # BUG: Do better here.  Read all the lines in individually, strip
-            # them, remove empties, maybe even ditch comments like DarkPrompt
-            # does
-            data.update({"checkpoint": random.choice(checkpoints)})
+            if DFB.get_key("iteration", 0) >= use_for_iterations:
+                DFB.set_key("iteration", 1)
+                DFB.set_key("checkpoint", random.choice(checkpoints))
+            else:
+                DFB.set_key("iteration", DFB.get_key("iteration", 0) + 1)
 
-        data.update({"iteration": data["iteration"] + 1})
+            checkpoint = DFB.get_key("checkpoint", random.choice(checkpoints))
 
-        # There appears to be a bug in ComfyUI when you pass the arg
-        # --temp-directory /some/folder
-        # folder_paths.temp_directory will actually contain /some/folder/temp
-        # so just make sure it exists before trying to write to it
-        Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
-        data_file = open(
-            os.path.join(
-                folder_paths.temp_directory, "darkpromptcheckpointrandomizer.json"
-            ),
-            "w",
-        )
-        data_file.write(json.dumps(data))
-        print(data)
+        print("Checkpoint: %s" % (checkpoint))
 
-        return (data["checkpoint"],)
+        return (checkpoint,)

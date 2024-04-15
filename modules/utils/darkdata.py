@@ -25,13 +25,26 @@ class DarkData(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+
         if self.filename and self.write_data:
-            with open(
-                os.path.join(folder_paths.temp_directory, self.filename),
-                "w",
-            ) as F:
-                F.write(json.dumps(self.write_data))
-                logger.info(self.write_data)
+            # There appears to be a bug in ComfyUI when you pass the arg
+            # --temp-directory /some/folder
+            # folder_paths.temp_directory will actually contain /some/folder/temp
+            # so just make sure it exists before trying to write to it
+            Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
+
+            save_path = os.path.join(folder_paths.temp_directory, self.filename)
+            try:
+                with open(
+                    save_path,
+                    "w",
+                ) as F:
+                    F.write(json.dumps(self.write_data))
+                    logger.info("DarkData wrote: %s" % (self.write_data))
+            except FileNotFoundError:
+                # First run, file probably doesn't exist
+                logger.info("Unable to write file %s" % (save_path))
+                pass
 
     def __init__(self, filename, initial_data=None):
         self.filename = filename
@@ -50,6 +63,7 @@ class DarkData(object):
         except FileNotFoundError:
             # Probably the first run
             logger.info("%s does not exist, probably first run", self.filename)
+        logger.info("DarkData read: %s" % (self.data))
 
     def get_key(self, key, default=None):
         """Get a key by name from the datafile.  If the key does not exist, return None."""
@@ -69,12 +83,21 @@ class DarkData(object):
 
     def save(self):
         """Write the data dictionary to the file"""
+        data_to_write = {}
+        data_to_write.update(self.data)
+        data_to_write.update(self.write_data)
+        # There appears to be a bug in ComfyUI when you pass the arg
+        # --temp-directory /some/folder
+        # folder_paths.temp_directory will actually contain /some/folder/temp
+        # so just make sure it exists before trying to write to it
+        Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
         with open(
             os.path.join(folder_paths.temp_directory, self.filename),
             "w",
         ) as F:
-            F.write(json.dumps(self.write_data))
-            logger.info(self.write_data)
+            F.write(json.dumps(self.data_to_write))
+
+        logger.info("Wrote data: %s" % (self.data_to_write))
         return self.write_data
 
 
