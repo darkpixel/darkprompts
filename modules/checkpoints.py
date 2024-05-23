@@ -111,8 +111,6 @@ class DarkCheckpointRandomizer(object):
                         "%s is in your DarkCheckpointRandomizer but it does not exist in your checkpoints directory"
                         % (cpn)
                     )
-            else:
-                logger.debug("Dropping blank line from DarkCheckpointRandomizer")
 
         if not checkpoints:
             raise Exception(
@@ -121,13 +119,26 @@ class DarkCheckpointRandomizer(object):
 
         with DarkData(filename="darkcheckpointrandomizer.json") as DFB:
             random.seed(seed)
-            if DFB.get_key("iteration", 0) >= use_for_iterations:
+            # make sure we have a checkpoint from the file or if it doesn't
+            # exist from the random function
+            checkpoint = DFB.get_key("checkpoint", random.choice(checkpoints))
+
+            if (
+                DFB.get_key("iteration", 0) >= use_for_iterations
+                or checkpoint not in checkpoints
+            ):
+                # If we are over our iteration count or the checkpoint no
+                # longer exists in the list due to the user removing it, set
+                # the iteration back to 1, get a new checkpoint, and save it
                 DFB.set_key("iteration", 1)
-                DFB.set_key("checkpoint", random.choice(checkpoints))
+                checkpoint = random.choice(checkpoints)
             else:
+                # If we aren't over our iteration count (or maybe this is our
+                # first iteration, increment the iteration counter
                 DFB.set_key("iteration", DFB.get_key("iteration", 0) + 1)
 
-            checkpoint = DFB.get_key("checkpoint", random.choice(checkpoints))
+            # Set our current checkpoint as it may have changed
+            DFB.set_key("checkpoint", checkpoint)
 
         print("Checkpoint: %s" % (checkpoint))
 

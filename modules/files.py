@@ -74,24 +74,22 @@ class DarkFolders(object):
     ):
 
         with DarkFolderBase(
-            filename="darkpromptfolder.json", initial_data=None, prefix=folder_prefix
-        ) as DFB:
+            filename="darkpromptfolder.json", prefix=folder_prefix
+        ) as df:
             prefix_to_use = folder_prefix
 
             if selection_method == "Fill Gaps":
-                prefix_to_use = DFB.get_first_available(folder_size)
+                prefix_to_use = df.get_first_available(folder_size)
             elif selection_method == "Highest Not Full":
-                prefix_to_use = DFB.get_highest_not_full(folder_size)
+                prefix_to_use = df.get_highest_not_full(folder_size)
             elif selection_method == "New Every Generation":
-                prefix_to_use = DFB.get_new()
+                prefix_to_use = df.get_new()
             elif selection_method == "Change On Input Change":
-                prefix_to_use = DFB.get_new_on_input_change(
-                    folder_size, change_on_input
-                )
+                prefix_to_use = df.get_new_on_input_change(folder_size, change_on_input)
             else:
                 logger.warn("Unknown selection method: %s" % (selection_method))
-                prefix_to_use = DFB.get_new()
+                prefix_to_use = df.get_new()
 
-        logger.info("Using prefix: %s" % (prefix_to_use))
+        logger.info("Using folder: %s" % (prefix_to_use))
 
         return (prefix_to_use,)

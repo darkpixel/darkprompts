@@ -1,6 +1,7 @@
+from contextlib import ContextDecorator, AbstractContextManager, contextmanager
 from folder_paths import get_output_directory
-
 from pathlib import Path
+
 import folder_paths
 import glob
 import json
@@ -17,40 +18,20 @@ class DarkData(object):
     """Basic management of a temporary datafile (JSON) for tracking changes or saving settings"""
 
     filename = None
-    initial_data = None
     data = {}
-    write_data = {}
+    changed_data = {}
+
+    def __init__(self, filename):
+        # logger.info("DarkData init start: data: %s" % (self.data))
+        # logger.info("DarkData init start: changed_data: %s" % (self.changed_data))
+
+        self.filename = filename
+        # logger.info("DarkData read: %s" % (self.data))
+        # logger.info("DarkData init finished: data: %s" % (self.data))
+        # logger.info("DarkData init finished: changed_data: %s" % (self.changed_data))
 
     def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-
-        if self.filename and self.write_data:
-            # There appears to be a bug in ComfyUI when you pass the arg
-            # --temp-directory /some/folder
-            # folder_paths.temp_directory will actually contain /some/folder/temp
-            # so just make sure it exists before trying to write to it
-            Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
-
-            save_path = os.path.join(folder_paths.temp_directory, self.filename)
-            try:
-                with open(
-                    save_path,
-                    "w",
-                ) as F:
-                    F.write(json.dumps(self.write_data))
-                    logger.info("DarkData wrote: %s" % (self.write_data))
-            except FileNotFoundError:
-                # First run, file probably doesn't exist
-                logger.info("Unable to write file %s" % (save_path))
-                pass
-
-    def __init__(self, filename, initial_data=None):
-        self.filename = filename
-        self.initial_data = initial_data
-        if initial_data:
-            self.data.update(initial_data)
+        # logger.info("__enter__: %s" % (self.changed_data))
         try:
             with open(
                 os.path.join(
@@ -63,7 +44,33 @@ class DarkData(object):
         except FileNotFoundError:
             # Probably the first run
             logger.info("%s does not exist, probably first run", self.filename)
-        logger.info("DarkData read: %s" % (self.data))
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # logger.info("__exit__")
+        # logger.info("About to exit with filename: %s" % (self.filename))
+        # logger.info("data: %s" % (self.data))
+        # logger.info("changed_data: %s" % (self.changed_data))
+
+        if self.filename and self.changed_data:
+            # There appears to be a bug in ComfyUI when you pass the arg
+            # --temp-directory /some/folder
+            # folder_paths.temp_directory will actually contain /some/folder/temp
+            # so just make sure it exists before trying to write to it
+            Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
+
+            save_path = os.path.join(folder_paths.temp_directory, self.filename)
+            try:
+                with open(
+                    save_path,
+                    "w",
+                ) as F:
+                    F.write(json.dumps(self.changed_data))
+                    logger.info("DarkData wrote: %s" % (self.changed_data))
+            except FileNotFoundError:
+                logger.error("Unable to write file %s" % (save_path))
+                pass
 
     def get_key(self, key, default=None):
         """Get a key by name from the datafile.  If the key does not exist, return None."""
@@ -71,34 +78,36 @@ class DarkData(object):
 
     def set_key(self, key, data):
         """Set a key by name to the value in data."""
-        self.write_data.update({key: data})
+        self.changed_data.update({key: data})
 
-    def update(self, data):
-        """Update all the data in the file"""
-        self.write_data.update(data)
 
-    def replace(self, data):
-        """Replace all the data in the file."""
-        self.write_data = data
+#    def update(self, data):
+#        """Update all the data in the file"""
+#        self.changed_data.update(data)
+#
+#    def replace(self, data):
+#        """Replace all the data in the file."""
+#        self.changed_data = data
 
-    def save(self):
-        """Write the data dictionary to the file"""
-        data_to_write = {}
-        data_to_write.update(self.data)
-        data_to_write.update(self.write_data)
-        # There appears to be a bug in ComfyUI when you pass the arg
-        # --temp-directory /some/folder
-        # folder_paths.temp_directory will actually contain /some/folder/temp
-        # so just make sure it exists before trying to write to it
-        Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
-        with open(
-            os.path.join(folder_paths.temp_directory, self.filename),
-            "w",
-        ) as F:
-            F.write(json.dumps(self.data_to_write))
-
-        logger.info("Wrote data: %s" % (self.data_to_write))
-        return self.write_data
+#    def save(self):
+#        """Write the data dictionary to the file"""
+#        data_to_write = {}
+#        data_to_write.update(self.data)
+#        data_to_write.update(self.changed_data)
+#        logger.info("save() data_to_write: %s" % (data_to_write))
+#        # There appears to be a bug in ComfyUI when you pass the arg
+#        # --temp-directory /some/folder
+#        # folder_paths.temp_directory will actually contain /some/folder/temp
+#        # so just make sure it exists before trying to write to it
+#        Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
+#        with open(
+#            os.path.join(folder_paths.temp_directory, self.filename),
+#            "w",
+#        ) as F:
+#            F.write(json.dumps(self.data_to_write))
+#
+#        logger.info("Wrote data: %s" % (self.data_to_write))
+#        return self.changed_data
 
 
 class DarkFolderBase(DarkData):
@@ -111,16 +120,22 @@ class DarkFolderBase(DarkData):
     prefix = ""
     highest_folder_number = 0
 
-    def __init__(self, filename, initial_data=None, prefix=""):
-        super().__init__(filename, initial_data)
+    def __init__(self, filename, prefix=""):
+        super().__init__(filename)
 
         self.prefix = prefix
         self.prefix_path = os.path.join(self.base_path, self.prefix)
 
+    def __enter__(self):
+        super().__enter__()
+
+        # Look at all folders that start with our prefix
         prefix_matches = glob.glob(self.prefix_path + "*")
         for m in prefix_matches:
             if os.path.isdir(m):
                 try:
+                    # Create a dict of folders keyed with the number and valued
+                    # with the number of files in it
                     self.folders.update(
                         {
                             int(m.replace(self.prefix_path, "")): len(
@@ -144,14 +159,12 @@ class DarkFolderBase(DarkData):
             if self.folders[key] == 0:
                 del self.folders[key]
 
+        # Get the highest folder number with data in it
         if self.folders:
             self.highest_folder_number = list(self.folders.keys())[-1]
 
-        print("DarkFolderBase initialized with:")
-        import pprint
-
-        pprint.pprint(self.folders)
-        print("highest_folder_number: %s" % (self.highest_folder_number))
+        # logger.info("DarFolderBase entered with folders: %s" % (self.folders))
+        return self
 
     def get_highest_not_full(self, max_size):
         ret = ""
@@ -166,7 +179,6 @@ class DarkFolderBase(DarkData):
                 ret = self.prefix_path + str(key + 1)
         else:
             ret = self.prefix_path + "0"
-        print("get_highest_not_full: %s" % (ret))
         return ret
 
     def get_first_available(self, max_size):
@@ -193,9 +205,10 @@ class DarkFolderBase(DarkData):
         return ret
 
     def get_new_on_input_change(self, max_size, new_input):
+        # logger.info("get_new_on_input_change() data: %s" % (self.data))
+        # logger.info("get_new_on_input_change() changed_data: %s" % (self.changed_data))
         folder_to_use = ""
         existing_data = self.get_key("input_data")
-        logger.info("Existing data: %s, New input: %s" % (existing_data, new_input))
         if existing_data and existing_data == str(new_input):
             folder_to_use = self.get_highest_not_full(max_size)
         else:
