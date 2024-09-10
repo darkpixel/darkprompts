@@ -1,52 +1,19 @@
 __version__ = "0.0.7"
 
-from folder_paths import get_output_directory
-import glob
+
 import logging
-import os
-import os.path
-import random
-import re
+from .utils.darkdata import DarkFolderBase
 
 logger = logging.getLogger(__name__)
 
 
-def get_full_path(prefix):
-    """Normalize the prefix into a full path"""
-    if not os.path.isabs(prefix):
-        path = os.path.join(get_output_directory(), prefix)
-    else:
-        path = prefix
-    return path
+# AnyType trick taken from here: https://github.com/comfyanonymous/ComfyUI/discussions/4830
+class AnyType(str):
+    def __ne__(self, __value: object) -> bool:
+        return False
 
 
-def get_count_from_path(path):
-    """Given an absolute path, return the number of items in that folder."""
-    path = get_full_path(path)
-    try:
-        count = len(
-            [
-                name
-                for name in os.listdir(path)
-                if os.path.isfile(os.path.join(path, name))
-            ]
-        )
-    except FileNotFoundError:
-        # Folder does not exist yet, give it a zero count
-        count = 0
-    logger.info("Folder %s has a count of %s" % (path, count))
-    return count
-
-
-def get_existing_folder_numbers_matching_prefix(prefix):
-    """Return a sorted list of integers that match the prefix."""
-    prefix_matches = glob.glob(get_full_path(prefix) + "*")
-    used = []
-    for m in prefix_matches:
-        if os.path.isdir(m):
-            used.append(int(m.replace(get_full_path(prefix), "")))
-            used.sort()
-    return used
+any_typ = AnyType("*")
 
 
 class DarkFolders(object):
@@ -88,7 +55,20 @@ class DarkFolders(object):
                     },
                 ),
                 "selection_method": (
-                    ["Fill Gaps", "Highest Not Full", "New Every Generation"],
+                    [
+                        "Fill Gaps",
+                        "Highest Not Full",
+                        "New Every Generation",
+                        "Change On Input Change",
+                    ],
+                ),
+            },
+            "optional": {
+                "change_on_input": (
+                    any_typ,
+                    {
+                        "forceInput": True,
+                    },
                 ),
             },
         }
@@ -98,66 +78,27 @@ class DarkFolders(object):
 
     CATEGORY = "DarkPrompt"
 
-    def get_prefix(self, seed, folder_prefix, folder_size, selection_method):
-        prefix_to_use = folder_prefix
+    def get_prefix(
+        self, seed, folder_prefix, folder_size, selection_method, change_on_input=None
+    ):
 
-        existing_folder_numbers = get_existing_folder_numbers_matching_prefix(
-            folder_prefix
-        )
+        with DarkFolderBase(
+            filename="darkpromptfolder.json", prefix=folder_prefix
+        ) as df:
+            prefix_to_use = folder_prefix
 
-        if selection_method == "Fill Gaps":
-            # Find the first available
-            for i in range(0, 100000):
-                item_count = get_count_from_path(get_full_path(folder_prefix + str(i)))
-                if item_count < folder_size:
-                    prefix_to_use = folder_prefix + str(i)
-                    break
-        elif selection_method == "Highest Not Full":
-            logger.debug("Using selection method: %s" % (selection_method))
-            highest_used_number = 0
-            # Loop through all existing folders
-            try:
-                while existing_folder_numbers:
-                    # Grab the highest number from the list and pop it
-                    i = existing_folder_numbers.pop()
-                    # If the folder number is greater than the highest_used_number AND
-                    # it has files in it, update the highest_used_number
-                    if (
-                        i > highest_used_number
-                        and get_count_from_path(get_full_path(folder_prefix + str(i)))
-                        > 0
-                    ):
-                        if (
-                            get_count_from_path(get_full_path(folder_prefix + str(i)))
-                            >= folder_size
-                        ):
-                            highest_used_number = i + 1
-                        else:
-                            highest_used_number = i
-            except IndexError:
-                # The list of folders is empty
-                pass
+            if selection_method == "Fill Gaps":
+                prefix_to_use = df.get_first_available(folder_size)
+            elif selection_method == "Highest Not Full":
+                prefix_to_use = df.get_highest_not_full(folder_size)
+            elif selection_method == "New Every Generation":
+                prefix_to_use = df.get_new()
+            elif selection_method == "Change On Input Change":
+                prefix_to_use = df.get_new_on_input_change(folder_size, change_on_input)
+            else:
+                logger.warn("Unknown selection method: %s" % (selection_method))
+                prefix_to_use = df.get_new()
 
-            logger.debug(
-                "The highest folder number with items in it is: %s"
-                % (highest_used_number)
-            )
-
-            for i in range(highest_used_number, highest_used_number + 100):
-                fldr = "%s%s" % (folder_prefix, i)
-                size = get_count_from_path(fldr)
-                if size < folder_size:
-                    logger.debug("Using folder prefix: %s" % (fldr))
-                    prefix_to_use = fldr
-                    break
-        elif selection_method == "New Every Generation":
-            prefix_to_use = folder_prefix + str(
-                existing_folder_numbers.pop() + 1 if existing_folder_numbers else 0
-            )
-            pass
-        else:
-            raise Exception("Unknown selection method: %s" % (selection_method))
-
-        logger.info("Using prefix: %s" % (prefix_to_use))
+        logger.info("Using folder: %s" % (prefix_to_use))
 
         return (prefix_to_use,)

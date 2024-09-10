@@ -27,6 +27,26 @@ class DarkLoraTagLoader:
                 "model": ("MODEL",),
                 "clip": ("CLIP",),
                 "text": ("STRING", {"multiline": True}),
+                "adjust_model_weight_by": (
+                    "FLOAT",
+                    {
+                        "min": -1,
+                        "max": 1,
+                        "default": 0,
+                        "step": 0.01,
+                        "round": 0.01,
+                    },
+                ),
+                "adjust_clip_weight_by": (
+                    "FLOAT",
+                    {
+                        "min": -1,
+                        "max": 1,
+                        "default": 0,
+                        "step": 0.01,
+                        "round": 0.01,
+                    },
+                ),
             }
         }
 
@@ -40,7 +60,9 @@ class DarkLoraTagLoader:
         self.loaded_lora = None
         self.tag_pattern = "\<[0-9a-zA-Z\:\_\-\.\s\/\(\)]+\>"
 
-    def load_lora(self, model, clip, text):
+    def load_lora(
+        self, model, clip, text, adjust_model_weight_by, adjust_clip_weight_by
+    ):
         # print(f"\nLoraTagLoader input text: { text }")
 
         founds = re.findall(self.tag_pattern, text)
@@ -57,11 +79,12 @@ class DarkLoraTagLoader:
         for f in founds:
             tag = f[1:-1]
             pak = tag.split(":")
-            (type, name, wModel) = pak[:3]
+            (loratype, name, wModel) = pak[:3]
+            #            print("Type: %s" % (loratype))
             wClip = wModel
             if len(pak) > 3:
                 wClip = pak[3]
-            if type != "lora":
+            if loratype != "lora":
                 continue
             lora_name = None
             for lora_file in lora_files:
@@ -70,10 +93,10 @@ class DarkLoraTagLoader:
                     break
             if lora_name == None:
                 print(
-                    f"Unable to load LoRA from tag:: { (type, name, wModel, wClip) } >> { lora_name }"
+                    f"Unable to load LoRA from tag:: { (loratype, name, wModel, wClip) } >> { lora_name }"
                 )
                 continue
-            # print(f"Found LoRA tag: { (type, name, wModel, wClip) } >> { lora_name }")
+            # print(f"Found LoRA tag: { (loratype, name, wModel, wClip) } >> { lora_name }")
 
             lora_path = folder_paths.get_full_path("loras", lora_name)
             lora = None
@@ -90,8 +113,14 @@ class DarkLoraTagLoader:
                 self.loaded_lora = (lora_path, lora)
 
             try:
-                strength_model = float(wModel)
-                strength_clip = float(wClip)
+                strength_model = float(wModel) + float(adjust_model_weight_by)
+                strength_clip = float(wClip) + float(adjust_clip_weight_by)
+
+                if float(adjust_model_weight_by) or float(adjust_clip_weight_by):
+                    print(
+                        "Adjusted %s to model weight from %s to %s and clip weight from %s to %s"
+                        % (model_lora, wModel, strength_model, wClip, strength_clip)
+                    )
                 model_lora, clip_lora = comfy.sd.load_lora_for_models(
                     model_lora, clip_lora, lora, strength_model, strength_clip
                 )

@@ -1,0 +1,13 @@
+[project]
+name = "darkprompts"
+description = "Slightly better random prompt generation tools that allow combining and picking prompts from both file and text input sources."
+version = "0.1.0"
+license = "BSD 3-Clause"
+
+[project.urls]
+Repository = "https://github.com/darkpixel/darkprompts"
+
+[tool.comfy]
+PublisherId = "darkpixel"
+DisplayName = "darkprompts"
+Icon = ""

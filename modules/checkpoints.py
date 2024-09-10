@@ -1,6 +1,7 @@
 __version__ = "0.0.7"
 
 from pathlib import Path
+from .utils.darkdata import DarkData
 import folder_paths
 import glob
 import logging
@@ -83,7 +84,7 @@ class DarkCheckpointRandomizer(object):
                     },
                 ),
                 "use_for_iterations": ("INT", {"default": 10, "min": 1}),
-                "checkpoint_names": ("STRING", {"default": None, "multiline": True}),
+                "checkpoint_names": ("STRING", {"default": "", "multiline": True}),
             },
         }
 
@@ -100,6 +101,7 @@ class DarkCheckpointRandomizer(object):
         # next morning to find that at some point we tried to use
         # doesnotexist.safetensors and everything crashed.
         checkpoints = []
+        checkpoint = None
         for cpn in checkpoint_names.splitlines():
             if cpn.strip():
                 if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
@@ -109,57 +111,35 @@ class DarkCheckpointRandomizer(object):
                         "%s is in your DarkCheckpointRandomizer but it does not exist in your checkpoints directory"
                         % (cpn)
                     )
-            else:
-                logger.debug("Dropping blank line from DarkCheckpointRandomizer")
 
         if not checkpoints:
             raise Exception(
                 "You have no checkpoints that exist listed in your DarkCheckpointRandomizer"
             )
 
-        data = {}
-        try:
-            with open(
-                os.path.join(
-                    folder_paths.temp_directory,
-                    "darkpromptcheckpointrandomizer.json",
-                ),
-                "r",
-            ) as data_file:
-                data = json.loads(data_file.read())
-        except FileNotFoundError:
-            # Probably the first run
-            pass
-
-        if not "iteration" in data:
-            data.update({"iteration": 0})
-
-        if (
-            data["iteration"] >= use_for_iterations
-            or not "checkpoint" in data
-            or not data["checkpoint"] in checkpoints
-        ):
-            data.update({"iteration": 0})
+        with DarkData(filename="darkcheckpointrandomizer.json") as DFB:
             random.seed(seed)
-            # BUG: Do better here.  Read all the lines in individually, strip
-            # them, remove empties, maybe even ditch comments like DarkPrompt
-            # does
-            data.update({"checkpoint": random.choice(checkpoints)})
+            # make sure we have a checkpoint from the file or if it doesn't
+            # exist from the random function
+            checkpoint = DFB.get_key("checkpoint", random.choice(checkpoints))
 
-        data.update({"iteration": data["iteration"] + 1})
+            if (
+                DFB.get_key("iteration", 0) >= use_for_iterations
+                or checkpoint not in checkpoints
+            ):
+                # If we are over our iteration count or the checkpoint no
+                # longer exists in the list due to the user removing it, set
+                # the iteration back to 1, get a new checkpoint, and save it
+                DFB.set_key("iteration", 1)
+                checkpoint = random.choice(checkpoints)
+            else:
+                # If we aren't over our iteration count (or maybe this is our
+                # first iteration, increment the iteration counter
+                DFB.set_key("iteration", DFB.get_key("iteration", 0) + 1)
 
-        # There appears to be a bug in ComfyUI when you pass the arg
-        # --temp-directory /some/folder
-        # folder_paths.temp_directory will actually contain /some/folder/temp
-        # so just make sure it exists before trying to write to it
-        Path(folder_paths.temp_directory).mkdir(parents=True, exist_ok=True)
-        data_file = open(
-            os.path.join(
-                folder_paths.temp_directory, "darkpromptcheckpointrandomizer.json"
-            ),
-            "w",
-        )
-        data_file.write(json.dumps(data))
-        print(data)
+            # Set our current checkpoint as it may have changed
+            DFB.set_key("checkpoint", checkpoint)
 
-        return (data["checkpoint"],)
+        print("Checkpoint: %s" % (checkpoint))
+
+        return (checkpoint,)
