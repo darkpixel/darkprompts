@@ -1,4 +1,17 @@
 
+v0.1.0 / 2024-09-10
+==================
+
+  * Fix type errors causing custom nodes to not load.  Fixes GH-6
+  * Add ability to adjust LoRA weights when loading
+  * Add DarkAnyToString because mtb Any to String is broken
+  * Add publisher information
+  * Switch to a context manager for data storage
+  * Fix a few bugs in DarkData
+  * Clean up file module, split shared content to utils
+  * Add notes about a bug
+  * DarkFolders: Add ability to change folders when an input changes
+
 v0.0.9 / 2024-03-25
 ==================
 
