@@ -107,9 +107,9 @@ class DarkPrompt(object):
         """
         return {
             "required": {
-                "strip_blank_lines": ("BOOLEAN", {"default": 1}),
-                "strip_comments": ("BOOLEAN", {"default": 1}),
-                "randomly_disable": ("BOOLEAN", {"default": 0}),
+                "strip_blank_lines": ("BOOLEAN", {"default": True}),
+                "strip_comments": ("BOOLEAN", {"default": True}),
+                "randomly_disable": ("BOOLEAN", {"default": True}),
                 "seed": (
                     "INT",
                     {
@@ -121,13 +121,13 @@ class DarkPrompt(object):
                 ),
             },
             "optional": {
-                "filename": ("STRING", {"default": None}),
-                "prefix": ("STRING", {"default": None}),
-                "suffix": ("STRING", {"default": None}),
-                "text": ("STRING", {"default": None, "multiline": True}),
+                "filename": ("STRING", {"default": ""}),
+                "prefix": ("STRING", {"default": ""}),
+                "suffix": ("STRING", {"default": ""}),
+                "text": ("STRING", {"default": "", "multiline": True}),
                 "combine_with": (
                     "STRING",
-                    {"default": None, "multiline": True, "forceInput": True},
+                    {"default": "", "multiline": True, "forceInput": True},
                 ),
                 "combine_with_delimiter": ("STRING", {"default": "\n"}),
             },

@@ -7,6 +7,15 @@ from .utils.darkdata import DarkFolderBase
 logger = logging.getLogger(__name__)
 
 
+# AnyType trick taken from here: https://github.com/comfyanonymous/ComfyUI/discussions/4830
+class AnyType(str):
+    def __ne__(self, __value: object) -> bool:
+        return False
+
+
+any_typ = AnyType("*")
+
+
 class DarkFolders(object):
     """
     Calculate a folder prefix for saving based on a maximum number of files in the folder.
@@ -56,7 +65,7 @@ class DarkFolders(object):
             },
             "optional": {
                 "change_on_input": (
-                    "*",
+                    any_typ,
                     {
                         "forceInput": True,
                     },

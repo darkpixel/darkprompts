@@ -26,11 +26,11 @@ class DarkFaceIndexGenerator(object):
                 ),
                 "randomize": (
                     "BOOLEAN",
-                    {"default": 1},
+                    {"default": True},
                 ),
                 "randomize_after_padding": (
                     "BOOLEAN",
-                    {"default": 1},
+                    {"default": True},
                 ),
                 "seed": (
                     "INT",

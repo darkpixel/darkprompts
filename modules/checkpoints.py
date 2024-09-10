@@ -84,7 +84,7 @@ class DarkCheckpointRandomizer(object):
                     },
                 ),
                 "use_for_iterations": ("INT", {"default": 10, "min": 1}),
-                "checkpoint_names": ("STRING", {"default": None, "multiline": True}),
+                "checkpoint_names": ("STRING", {"default": "", "multiline": True}),
             },
         }
 
