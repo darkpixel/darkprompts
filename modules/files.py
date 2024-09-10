@@ -1,6 +1,3 @@
-__version__ = "0.0.7"
-
-
 import logging
 from .utils.darkdata import DarkFolderBase
 

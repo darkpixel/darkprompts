@@ -1,7 +1,7 @@
 [project]
 name = "darkprompts"
 description = "Slightly better random prompt generation tools that allow combining and picking prompts from both file and text input sources."
-version = "0.1.0"
+version = "0.1.1"
 license = "BSD 3-Clause"
 
 [project.urls]

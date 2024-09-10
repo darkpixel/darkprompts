@@ -1,5 +1,3 @@
-__version__ = "0.0.7"
-
 from pathlib import Path
 from .utils.darkdata import DarkData
 import folder_paths

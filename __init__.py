@@ -1,5 +1,3 @@
-__version__ = "0.1.1"
-
 import logging
 import random
 import re
