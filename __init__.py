@@ -8,6 +8,7 @@ from .modules import faces
 from .modules import prompts
 from .modules import files
 from .modules import checkpoints
+from .modules import convert
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ NODE_CLASS_MAPPINGS = {
     "DarkFaceIndexGenerator": faces.DarkFaceIndexGenerator,
     "DarkCheckpointRandomizer": checkpoints.DarkCheckpointRandomizer,
     "DarkCheckpointSwitcher": checkpoints.DarkCheckpointSwitcher,
+    "DarkAnyToString": convert.DarkAnyToString,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -32,6 +34,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkFaceIndexGenerator": "Dark Face Index Generator",
     "DarkCheckpointRandomizer": "Dark Checkpoint Randomizer",
     "DarkCheckpointSwitcher": "Dark Checkpoint Switcher",
+    "DarkAnyToString": "Dark Any to String",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
