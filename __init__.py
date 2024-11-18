@@ -2,11 +2,7 @@ import logging
 import random
 import re
 from .gpl3 import DarkLoraTagLoader
-from .modules import faces
-from .modules import prompts
-from .modules import files
-from .modules import checkpoints
-from .modules import convert
+from .modules import faces, prompts, files, checkpoints, convert, loras
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +17,7 @@ NODE_CLASS_MAPPINGS = {
     "DarkCheckpointRandomizer": checkpoints.DarkCheckpointRandomizer,
     "DarkCheckpointSwitcher": checkpoints.DarkCheckpointSwitcher,
     "DarkAnyToString": convert.DarkAnyToString,
+    "DarkLoraStackFromString": loras.DarkLoraStackFromString,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -33,6 +30,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkCheckpointRandomizer": "Dark Checkpoint Randomizer",
     "DarkCheckpointSwitcher": "Dark Checkpoint Switcher",
     "DarkAnyToString": "Dark Any to String",
+    "DarkLoraStackFromString": "Dark LoRA Stack from String",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
