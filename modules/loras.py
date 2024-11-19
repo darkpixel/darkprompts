@@ -3,6 +3,7 @@ from comfy.sd import load_lora_for_models
 import folder_paths
 import logging
 import os
+import os.path
 import random
 import re
 
@@ -59,16 +60,37 @@ class DarkLoraStackFromString(object):
     def load_loras_from_string(self, string_in, model=None, clip=None):
         lora_pattern = r"\<lora\:(?P<lora_name>[0-9a-zA-Z\_\-\.\s\/\(\)]+)\:(?P<model_weight>[\d\.]+):?(?P<clip_weight>[\d\.]*)\>"
         lora_stack = list()
+        lora_folder = folder_paths.get_folder_paths("loras")[0]
+        lora_to_load = []
 
         for lora in re.findall(lora_pattern, string_in):
-            lora_folder = folder_paths.get_folder_paths("loras")[0]
-            lora_path = os.path.join(
-                lora_folder,
-                lora[0] if ".safetensors" in lora[0] else "%s.safetensors" % (lora[0]),
+            lora_to_load.append(
+                {
+                    "name": lora[0]
+                    if ".safetensors" in lora[0]
+                    else "%s.safetensors" % (lora[0]),
+                    "path": os.path.join(
+                        lora_folder,
+                        lora[0]
+                        if ".safetensors" in lora[0]
+                        else "%s.safetensors" % (lora[0]),
+                    ),
+                    "model_weight": lora[1],
+                    "clip_weight": lora[2] if len(lora[2]) > 0 else lora[1],
+                }
             )
+
+        for lora in lora_to_load:
+            # If a model and clip were passed, load the LoRA, otherwise just
+            # extend the set
+            if not os.path.isfile(lora["path"]):
+                print(
+                    "SKIP LOADING LOADING LoRA THAT DOES NOT EXIST: %s" % (lora["path"])
+                )
+                continue
             if model and clip:
                 lora_torch = load_torch_file(
-                    lora_path,
+                    lora["path"],
                     safe_load=True,
                 )
 
@@ -76,22 +98,22 @@ class DarkLoraStackFromString(object):
                     model,
                     clip,
                     lora_torch,
-                    lora[1],
-                    lora[1] if lora[2] == "" else lora[1],
+                    lora["model_weight"],
+                    lora["clip_weight"],
                 )
 
             lora_stack.extend(
                 [
                     (
-                        lora[0]
-                        if ".safetensors" in lora[0]
-                        else "%s.safetensors" % (lora[0]),
-                        float(lora[1]),
-                        float(lora[2]) if lora[2] and lora[2] == 0 else float(lora[1]),
+                        lora["name"],
+                        float(lora["model_weight"]),
+                        float(lora["clip_weight"]),
                     )
                 ]
             )
 
+        # Remove the LoRA tags from the string so a clean string can be passed
+        # to the sampler
         string_in = re.sub(lora_pattern, "", string_in)
 
         return (
