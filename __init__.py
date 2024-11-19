@@ -18,6 +18,7 @@ NODE_CLASS_MAPPINGS = {
     "DarkCheckpointSwitcher": checkpoints.DarkCheckpointSwitcher,
     "DarkAnyToString": convert.DarkAnyToString,
     "DarkLoraStackFromString": loras.DarkLoraStackFromString,
+    "DarkPopLoraFromStack": loras.DarkPopLoraFromStack,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -31,6 +32,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DarkCheckpointSwitcher": "Dark Checkpoint Switcher",
     "DarkAnyToString": "Dark Any to String",
     "DarkLoraStackFromString": "Dark LoRA Stack from String",
+    "DarkPopLoraFromStack": "Dark LoRA Pop LoRA string from LORA_STACK",
 }
 
 __all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]

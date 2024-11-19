@@ -10,6 +10,48 @@ import re
 logger = logging.getLogger(__name__)
 
 
+class DarkPopLoraFromStack(object):
+    """
+    Accepts a LoRA stack and extracts the first LoRA it finds, removing it from the stack
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "LORA_STACK": (
+                    "LORA_STACK",
+                    {
+                        "forceInput": True,
+                    },
+                ),
+            },
+        }
+
+    RETURN_TYPES = (
+        "LORA_STACK",
+        "STRING",
+    )
+    RETURN_NAMES = ("LORA_STACK", "EXTRACTED_LORA")
+    FUNCTION = "extract_lora_from_stack"
+
+    CATEGORY = "DarkPrompt"
+
+    def extract_lora_from_stack(self, LORA_STACK):
+        print(LORA_STACK)
+        popped_lora = ""
+        if LORA_STACK:
+            popped_lora = LORA_STACK.pop(0)
+            popped_lora = popped_lora[0]
+
+        print(popped_lora)
+
+        return (LORA_STACK, popped_lora)
+
+
 class DarkLoraStackFromString(object):
     """
     Takes in a string (prompt), scans it for LoRA tags in the format <lora:somelora:x:y> and creates a LoRA stack from the string
