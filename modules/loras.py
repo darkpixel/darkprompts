@@ -100,21 +100,28 @@ class DarkLoraStackFromString(object):
         lora_to_load = []
 
         for lora in re.findall(lora_pattern, string_in):
-            lora_to_load.append(
-                {
-                    "name": lora[0]
-                    if ".safetensors" in lora[0]
-                    else "%s.safetensors" % (lora[0]),
-                    "path": os.path.join(
-                        lora_folder,
-                        lora[0]
+            try:
+                lora_to_load.append(
+                    {
+                        "name": lora[0]
                         if ".safetensors" in lora[0]
                         else "%s.safetensors" % (lora[0]),
-                    ),
-                    "model_weight": lora[1],
-                    "clip_weight": lora[2] if len(lora[2]) > 0 else lora[1],
-                }
-            )
+                        "path": os.path.join(
+                            lora_folder,
+                            lora[0]
+                            if ".safetensors" in lora[0]
+                            else "%s.safetensors" % (lora[0]),
+                        ),
+                        "model_weight": float(lora[1]),
+                        "clip_weight": float(lora[2])
+                        if len(lora[2]) > 0
+                        else float(lora[1]),
+                    }
+                )
+            except ValueError:
+                logger.warning(
+                    "This line appears to have an invalid LoRA weight: %s" % (lora)
+                )
 
         for lora in lora_to_load:
             # If a model and clip were passed, load the LoRA, otherwise just
@@ -134,8 +141,8 @@ class DarkLoraStackFromString(object):
                     model,
                     clip,
                     lora_torch,
-                    lora["model_weight"],
-                    lora["clip_weight"],
+                    float(lora["model_weight"]),
+                    float(lora["clip_weight"]),
                 )
 
             lora_stack.extend(
