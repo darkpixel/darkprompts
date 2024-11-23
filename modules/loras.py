@@ -31,23 +31,17 @@ class DarkPopLoraFromStack(object):
             },
         }
 
-    RETURN_TYPES = (
-        "LORA_STACK",
-        "STRING",
-    )
+    RETURN_TYPES = ("LORA_STACK", "STRING")
     RETURN_NAMES = ("LORA_STACK", "EXTRACTED_LORA")
     FUNCTION = "extract_lora_from_stack"
 
     CATEGORY = "DarkPrompt"
 
     def extract_lora_from_stack(self, LORA_STACK):
-        print(LORA_STACK)
         popped_lora = ""
         if LORA_STACK:
             popped_lora = LORA_STACK.pop(0)
             popped_lora = popped_lora[0]
-
-        print(popped_lora)
 
         return (LORA_STACK, popped_lora)
 
