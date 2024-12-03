@@ -103,25 +103,32 @@ class DarkLoraStackFromString(object):
             try:
                 lora_to_load.append(
                     {
-                        "name": lora[0]
-                        if ".safetensors" in lora[0]
-                        else "%s.safetensors" % (lora[0]),
-                        "path": os.path.join(
-                            lora_folder,
+                        "name": (
                             lora[0]
                             if ".safetensors" in lora[0]
-                            else "%s.safetensors" % (lora[0]),
+                            else "%s.safetensors" % (lora[0])
+                        ),
+                        "path": os.path.join(
+                            lora_folder,
+                            (
+                                lora[0]
+                                if ".safetensors" in lora[0]
+                                else "%s.safetensors" % (lora[0])
+                            ),
                         ),
                         "model_weight": float(lora[1]),
-                        "clip_weight": float(lora[2])
-                        if len(lora[2]) > 0
-                        else float(lora[1]),
+                        "clip_weight": (
+                            float(lora[2]) if len(lora[2]) > 0 else float(lora[1])
+                        ),
                     }
                 )
             except ValueError:
                 logger.warning(
                     "This line appears to have an invalid LoRA weight: %s" % (lora)
                 )
+
+        this_lora_model = model
+        this_lora_clip = clip
 
         for lora in lora_to_load:
             # If a model and clip were passed, load the LoRA, otherwise just
@@ -160,8 +167,8 @@ class DarkLoraStackFromString(object):
         string_in = re.sub(lora_pattern, "", string_in)
 
         return (
-            model,
-            clip,
+            this_lora_model,
+            this_lora_clip,
             string_in,
             lora_stack,
         )
