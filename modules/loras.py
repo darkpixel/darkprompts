@@ -74,10 +74,6 @@ class DarkLoraStackFromString(object):
             },
         }
 
-    @classmethod
-    def IS_CHANGED(s, string_in):
-        return random.randint(-9999999999, 9999999999)
-
     RETURN_TYPES = (
         "MODEL",
         "CLIP",
@@ -183,10 +179,6 @@ class DarkLoadAllTheLoras(object):
 
     def __init__(self):
         pass
-
-    @classmethod
-    def IS_CHANGED(s, string_in):
-        return random.randint(-9999999999, 9999999999)
 
     @classmethod
     def INPUT_TYPES(cls):
