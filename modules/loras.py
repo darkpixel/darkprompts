@@ -1,6 +1,7 @@
 from comfy.utils import load_torch_file
 from comfy.sd import load_lora_for_models
 import folder_paths
+import glob
 import logging
 import os
 import os.path
@@ -171,4 +172,85 @@ class DarkLoraStackFromString(object):
             this_lora_clip,
             string_in,
             lora_stack,
+        )
+
+
+class DarkLoadAllTheLoras(object):
+    """
+    Takes in a string (prompt), scans it for LoRA tags in the format <lora:somelora:x:y> and creates a LoRA stack from the string
+    Optionally strips the LoRAs out of the string it empts
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def IS_CHANGED(s, string_in):
+        return random.randint(-9999999999, 9999999999)
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "model": ("MODEL",),
+                "clip": ("CLIP",),
+            },
+        }
+
+    RETURN_TYPES = (
+        "MODEL",
+        "CLIP",
+    )
+    RETURN_NAMES = (
+        "MODEL",
+        "CLIP",
+    )
+    FUNCTION = "load_all_the_loras"
+
+    CATEGORY = "DarkPrompt"
+
+    def load_all_the_loras(self, model, clip):
+        lora_folder = folder_paths.get_folder_paths("loras")[0]
+        loras_to_load = []
+
+        search_for = lora_folder + "/*.safetensors"
+        print("search_for: %s" % (search_for))
+        for lora_file in glob.glob(search_for):
+            logger.warning("Found lora: %s" % (lora_file))
+            print("Found lora: %s" % (lora_file))
+            if os.path.basename(lora_file) in [n["name"] for n in loras_to_load]:
+                logger.warning("%s is already loaded" % (lora_file))
+            else:
+                loras_to_load.append(
+                    {
+                        "name": os.path.basename(lora_file),
+                        "path": lora_file,
+                        "model_weight": 0.7,
+                        "clip_weight": 0.0,
+                    }
+                )
+
+        print(loras_to_load)
+
+        this_lora_model = model
+        this_lora_clip = clip
+
+        for lora in loras_to_load:
+            logger.warning("Loading lora: %s" % (lora))
+            lora_torch = load_torch_file(
+                lora["path"],
+                safe_load=True,
+            )
+
+            this_lora_model, this_lora_clip = load_lora_for_models(
+                this_lora_model,
+                this_lora_clip,
+                lora_torch,
+                float(lora["model_weight"]),
+                float(lora["clip_weight"]),
+            )
+
+        return (
+            this_lora_model,
+            this_lora_clip,
         )
