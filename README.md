@@ -3,6 +3,10 @@ DarkPrompts
 
 A slightly better tool for generating random prompts.
 
+Changelog
+=========
+[changelog](History.md)
+
 DarkPrompt
 ==========
 DarkPrompt reads lines from a file and/or a text input, combines them together, optionally strips out comments and blank lines, and then selects a random line for use in generating your prompt based on a seed input.

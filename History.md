@@ -1,4 +1,16 @@
 
+v1.0.0 / 2024-12-05
+==================
+
+  * Lots of changes from playtesting over the last few months.  This will probably break workflows until you right-click the nodes and hit "fix".
+  * Add: DarkPopLoraFromStack which takes a LORA_STACK and pops *one* LoRA off the stack and returns the new LORA_STACK and the extracted LoRA
+  * Feature: Automatically strip comments (lines starting with '#') from Checkpoint names in the Checkpoint randomizer
+  * Fix: Remove IS_CHANGED method causing DarkLoRA nodes to constantly re-run
+  * Fix: LoRA loader wasn't loading LoRAs properly basically cusing them to not have any effect, especially in downstream nodes
+  * Fix: Don't die horribly on bad LoRA weights
+  * Fix: Clean up DarkLoRA loading and catch attempts to add invalid LoRAs to the stack
+  * Fix: Finished updating DarkLoraStackFromString
+
 v0.1.2 / 2024-09-10
 ==================
 
