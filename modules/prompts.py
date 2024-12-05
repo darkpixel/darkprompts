@@ -1,4 +1,5 @@
 import logging
+
 import random
 import re
 
@@ -189,7 +190,8 @@ class DarkPrompt(object):
         if strip_blank_lines:
             lines = strip_blanks_from_lines(lines)
 
-        # Preseed the python random library
+        # Preseed the python random library with the seed we were fed initially
+        # to randomly choose a line
         random.seed(seed)
         try:
             # Pick a random line from the list of available lines
@@ -249,7 +251,7 @@ class DarkPrompt(object):
                 ret = combine_with + ret
             else:
                 # If we have no data to return and no combine_with delimiter,
-                # just return our data
+                # just return the data we were fed initially.
                 ret = combine_with
 
         return (ret,)

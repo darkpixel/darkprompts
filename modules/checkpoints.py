@@ -1,5 +1,6 @@
 from pathlib import Path
 from .utils.darkdata import DarkData
+from .prompts import strip_comments_from_lines
 import folder_paths
 import glob
 import logging
@@ -100,7 +101,9 @@ class DarkCheckpointRandomizer(object):
         # doesnotexist.safetensors and everything crashed.
         checkpoints = []
         checkpoint = None
-        for cpn in checkpoint_names.splitlines():
+        checkpoint_lines = strip_comments_from_lines(checkpoint_names.splitlines())
+
+        for cpn in checkpoint_lines:
             if cpn.strip():
                 if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
                     checkpoints.append(cpn.strip())
