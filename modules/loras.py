@@ -121,8 +121,9 @@ class DarkLoraStackFromString(object):
                 )
             except ValueError:
                 logger.warning(
-                    "This line appears to have an invalid LoRA weight: %s" % (lora)
+                    "This line appears to have an invalid LoRA weight: %s" % (string_in)
                 )
+                continue
 
         this_lora_model = model
         this_lora_clip = clip
