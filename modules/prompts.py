@@ -215,6 +215,9 @@ class DarkPrompt(object):
         # variable.  This will lead to *all* DarkPrompt objects being disabled
         # at the same time, or *all* DarkPrompt objects being enabled at the
         # same time.  So generate a new random seed for each DarkPrompt object.
+        # Bug: This needs to be idempotent.  Maybe base it on a has of the
+        # input lines so if nothing changes about the prompt, re-using the same
+        # seed produces the same result.
         if randomly_disable:
             random.seed()
 
