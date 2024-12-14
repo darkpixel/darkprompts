@@ -2,7 +2,7 @@ import logging
 import random
 import re
 from .gpl3 import DarkLoraTagLoader
-from .modules import faces, prompts, files, checkpoints, convert, loras
+from .modules import faces, prompts, files, checkpoints, convert, loras, utils
 
 logger = logging.getLogger(__name__)
 
