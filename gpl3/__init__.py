@@ -69,7 +69,7 @@ class DarkLoraTagLoader:
         # print(f"\nfound lora tags: { founds }")
 
         if len(founds) < 1:
-            return (model, clip, text)
+            return (model, clip, text, "", [])
 
         model_lora = model
         clip_lora = clip

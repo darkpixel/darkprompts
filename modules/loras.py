@@ -67,6 +67,26 @@ class DarkLoraStackFromString(object):
                         "forceInput": True,
                     },
                 ),
+                "adjust_model_weight_by": (
+                    "FLOAT",
+                    {
+                        "min": -1,
+                        "max": 1,
+                        "default": 0,
+                        "step": 0.01,
+                        "round": 0.01,
+                    },
+                ),
+                "adjust_clip_weight_by": (
+                    "FLOAT",
+                    {
+                        "min": -1,
+                        "max": 1,
+                        "default": 0,
+                        "step": 0.01,
+                        "round": 0.01,
+                    },
+                ),
             },
             "optional": {
                 "model": ("MODEL",),
@@ -90,7 +110,14 @@ class DarkLoraStackFromString(object):
 
     CATEGORY = "DarkPrompt"
 
-    def load_loras_from_string(self, string_in, model=None, clip=None):
+    def load_loras_from_string(
+        self,
+        string_in,
+        adjust_model_weight_by,
+        adjust_clip_weight_by,
+        model=None,
+        clip=None,
+    ):
         lora_pattern = r"\<lora\:(?P<lora_name>[0-9a-zA-Z\_\-\.\s\/\(\)]+)\:(?P<model_weight>[\d\.]+):?(?P<clip_weight>[\d\.]*)\>"
         lora_stack = list()
         lora_folder = folder_paths.get_folder_paths("loras")[0]
@@ -113,9 +140,11 @@ class DarkLoraStackFromString(object):
                                 else "%s.safetensors" % (lora[0])
                             ),
                         ),
-                        "model_weight": float(lora[1]),
+                        "model_weight": float(lora[1]) + float(adjust_model_weight_by),
                         "clip_weight": (
-                            float(lora[2]) if len(lora[2]) > 0 else float(lora[1])
+                            float(lora[2])
+                            if len(lora[2]) > 0
+                            else float(lora[1]) + float(adjust_clip_weight_by)
                         ),
                     }
                 )
