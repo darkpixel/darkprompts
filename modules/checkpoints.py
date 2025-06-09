@@ -144,3 +144,179 @@ class DarkCheckpointRandomizer(object):
         print("Checkpoint: %s" % (checkpoint))
 
         return (checkpoint,)
+
+
+class DarkCheckpointRotator(object):
+    """
+    Steps through a checkpoint every iteration until the list is empty then starts again.
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "seed": (
+                    "INT",
+                    {
+                        "default": 0,
+                        "min": 0,
+                        "max": 0xFFFFFFFFFFFFFFFF,
+                        "forceInput": True,
+                    },
+                ),
+                "checkpoint_names": ("STRING", {"default": "", "multiline": True}),
+            },
+        }
+
+    RETURN_TYPES = (folder_paths.get_filename_list("checkpoints"),)
+    RETURN_NAMES = ("ckpt_name",)
+    FUNCTION = "action"
+
+    CATEGORY = "DarkPrompt"
+
+    def action(self, seed, checkpoint_names):
+        checkpoints = []
+        checkpoint = None
+        checkpoint_lines = strip_comments_from_lines(checkpoint_names.splitlines())
+
+        for cpn in checkpoint_lines:
+            if cpn.strip():
+                if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
+                    checkpoints.append(cpn.strip())
+                else:
+                    logger.warn(
+                        "%s is in your DarkCheckpointRotator but it does not exist in your checkpoints directory"
+                        % (cpn)
+                    )
+
+        if not checkpoints:
+            raise Exception(
+                "You have no checkpoints that exist listed in your DarkCheckpointRotator"
+            )
+
+        with DarkData(filename="darkcheckpointrotator.json") as DFB:
+            used_checkpoints = []
+            used_checkpoints_string = DFB.get_key("used_checkpoints", None)
+            if used_checkpoints_string:
+                used_checkpoints = used_checkpoints_string.split(",")
+
+            print("Used checkpoints: %s" % (used_checkpoints))
+
+            available_checkpoints = [
+                x for x in checkpoints if x not in used_checkpoints
+            ]
+            print("Available checkpoints: %s" % (available_checkpoints))
+
+            if not available_checkpoints:
+                # We used 'em all up
+                available_checkpoints = checkpoints
+                used_checkpoints = []
+
+            checkpoint = available_checkpoints.pop()
+            used_checkpoints.append(checkpoint)
+            DFB.set_key("used_checkpoints", ",".join(used_checkpoints))
+
+        print("Checkpoint: %s" % (checkpoint))
+
+        return (checkpoint,)
+
+
+class DarkCheckpointRotatorIterations(object):
+    """
+    Returns a checkpoint for a number of iterations and then continues on to the next one until the entire list is empty.  Then we start again.
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "seed": (
+                    "INT",
+                    {
+                        "default": 0,
+                        "min": 0,
+                        "max": 0xFFFFFFFFFFFFFFFF,
+                        "forceInput": True,
+                    },
+                ),
+                "use_for_iterations": ("INT", {"default": 10, "min": 1}),
+                "checkpoint_names": ("STRING", {"default": "", "multiline": True}),
+            },
+        }
+
+    RETURN_TYPES = (folder_paths.get_filename_list("checkpoints"),)
+    RETURN_NAMES = ("ckpt_name",)
+    FUNCTION = "action"
+
+    CATEGORY = "DarkPrompt"
+
+    def action(self, seed, use_for_iterations, checkpoint_names):
+        checkpoints = []
+        checkpoint = None
+        checkpoint_lines = strip_comments_from_lines(checkpoint_names.splitlines())
+
+        for cpn in checkpoint_lines:
+            if cpn.strip():
+                if cpn.strip() in folder_paths.get_filename_list("checkpoints"):
+                    checkpoints.append(cpn.strip())
+                else:
+                    logger.warn(
+                        "%s is in your DarkCheckpointRotator but it does not exist in your checkpoints directory"
+                        % (cpn)
+                    )
+
+        if not checkpoints:
+            raise Exception(
+                "You have no checkpoints that exist listed in your DarkCheckpointRotator"
+            )
+
+        with DarkData(filename="darkcheckpointrotator.json") as DFB:
+            iterations = DFB.get_key("iterations", 0)
+            checkpoint = DFB.get_key("checkpoint", None)
+
+            used_checkpoints = []
+            used_checkpoints_string = DFB.get_key("used_checkpoints", None)
+            if used_checkpoints_string:
+                used_checkpoints = used_checkpoints_string.split(",")
+
+            available_checkpoints = [
+                x for x in checkpoints if x not in used_checkpoints
+            ]
+
+            if checkpoint and checkpoint not in available_checkpoints:
+                if available_checkpoints:
+                    checkpoint = available_checkpoints.pop()
+                    iterations = 0
+                else:
+                    available_checkpoints = checkpoints
+                    checkpoint = available_checkpoints.pop()
+                    iterations = 0
+            elif not checkpoint:
+                checkpoint = available_checkpoints.pop()
+                iterations = 0
+
+            if iterations >= use_for_iterations:
+                used_checkpoints.append(checkpoint)
+                available_checkpoints.pop()
+                if available_checkpoints:
+                    checkpoint = available_checkpoints.pop()
+                    iterations = 0
+                else:
+                    available_checkpoints = checkpoints
+                    used_checkpoints = []
+                    checkpoint = available_checkpoints.pop()
+                    iterations = 0
+
+            iterations += 1
+
+            DFB.set_key("used_checkpoints", ",".join(used_checkpoints))
+            DFB.set_key("checkpoint", checkpoint)
+            DFB.set_key("iterations", iterations)
+
+        return (checkpoint,)
